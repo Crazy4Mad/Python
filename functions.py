@@ -106,12 +106,18 @@ if (pace_x != 0) and (to_x - from_x)*pace_x >= 0 and abs(to_x - from_x)\
         if (negative_value_exists):
             if y1_cur_value <= 0 - ratio / 2:
                 req_aux = axis_x_pos - pos_of_x
-                print(pos_of_x*' ' + '*' + (req_aux - 1)*' ' + '|')
+                if (req_aux != 0):
+                    print(pos_of_x*' ' + '*' + (req_aux - 1)*' ' + '|')
+                else:
+                    print((axis_x_pos- 1)*' ' + '*' + '|')
             elif y1_cur_value >= 0 + ratio / 2:
                 req_aux = pos_of_x - axis_x_pos
-                print(axis_x_pos*' ' + '|' + (req_aux - 1)*' ' + '*')
+                if (req_aux != 0):
+                    print(axis_x_pos * ' ' + '|' + (req_aux - 1) * ' ' + '*')
+                else:
+                    print((axis_x_pos)*' ' + '|*')
             else:
-                print(pos_of_x*' ' + '*')
+                print(axis_x_pos*' ' + '*')
         else:
             print('|' + pos_of_x*' ' + '*')
             axis_x_pos = 0
