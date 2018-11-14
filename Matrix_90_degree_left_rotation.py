@@ -1,13 +1,14 @@
 Matrix_size = input("Enter a size of matrix:")
-integer_masks = [' ', '- ', ' e ', '- e ']
+integer_masks = [' ', ' e ']
 full_masks = [' ', '- ', ' e ', '- e ', ' e- ', '- e- ',
               ' . e ', '- . e ', ' . e- ', '- . e- ', '. e ',
-              '. e- ', '. ', ' .', ' . ']
+              '. e- ', '. ', ' .', ' . ']#маски на все возможные строки, которые можно
+                                         #привести к типу float
 cur_mask = ''
 first_dial = True
-have_zeroes = False
+have_zeroes = False #флаг нужен для того, чтобы понимать, нужно ли удалять столбец или нет
 for elem in Matrix_size:
-    if elem <= '9' and elem >= '0':
+    if elem <= '9' and elem >= '0':#проверяем, является ли текущей элемент введенной строки цифрой
         if first_dial:
             first_dial = False
             cur_mask += ' '
@@ -18,8 +19,8 @@ for elem in Matrix_size:
 if cur_mask in integer_masks:
     Matrix_size = int(Matrix_size)
     if Matrix_size > 0:
-        Matrix = [[0]*Matrix_size for i in range(Matrix_size)]
-        to_go = Matrix_size**2
+        Matrix = [[0]*Matrix_size for i in range(Matrix_size)]#создаем нулевую матрицу заданного размера
+        to_go = Matrix_size**2#счетчик оставшегося количества элементов, которые нужно ввести
         is_ok = True
         max_amount_of_zer, max_zer_row = 0, 0
         for i in range(Matrix_size):
@@ -49,7 +50,7 @@ if cur_mask in integer_masks:
                         have_zeroes = True
             else:
                 break
-            if cur_amount_of_zer > max_amount_of_zer:
+            if cur_amount_of_zer > max_amount_of_zer:#определяю строку с наибольшим количеством нулей
                 max_amount_of_zer = cur_amount_of_zer
                 max_zer_row = i
 
@@ -61,24 +62,16 @@ if cur_mask in integer_masks:
             i = 0
             while i < Matrix_size - i - 1:
                 for pos in range(i, Matrix_size - i - 1):
-                    if i == pos:
-                        cur_value = Matrix[i][i]
-                        Matrix[i][i] = Matrix[i][-(i + 1)]
-                        cur_value, Matrix[-(i + 1)][i] = Matrix[-(i + 1)][i], cur_value
-                        cur_value, Matrix[-(i + 1)][-(i + 1)] = Matrix[-(i + 1)][-(i + 1)], cur_value
-                        Matrix[i][-(i + 1)] = cur_value
-                    else:
-                        cur_row, cur_column = Matrix_size - pos - 1, i
-                        cur_value = Matrix[cur_row][cur_column]
-                        Matrix[cur_row][cur_column] = Matrix[i][pos]
+                    cur_row, cur_column = Matrix_size - pos - 1, i
+                    cur_value = Matrix[cur_row][cur_column]
+                    Matrix[cur_row][cur_column] = Matrix[i][pos]
 
-                        cur_row, cur_column = Matrix_size - cur_column - 1, cur_row
-                        cur_value, Matrix[cur_row][cur_column] = Matrix[cur_row][cur_column], cur_value
+                    cur_row, cur_column = Matrix_size - cur_column - 1, cur_row
+                    cur_value, Matrix[cur_row][cur_column] = Matrix[cur_row][cur_column], cur_value
+                    cur_row, cur_column = Matrix_size - cur_column - 1, cur_row
+                    cur_value, Matrix[cur_row][cur_column] = Matrix[cur_row][cur_column], cur_value
 
-                        cur_row, cur_column = Matrix_size - cur_column - 1, cur_row
-                        cur_value, Matrix[cur_row][cur_column] = Matrix[cur_row][cur_column], cur_value
-
-                        Matrix[i][pos] = cur_value
+                    Matrix[i][pos] = cur_value
                 i += 1
                 pass
 
