@@ -1,11 +1,9 @@
 from math import cos
 def trapezoid_method(from_x, to_x, difference):
     return (cos(from_x) + cos(to_x))*difference / 2
-    pass
 
 def parabola_method(x, sign):
     return (sign*4 + (not sign)*2)*cos(x)
-    pass
 
 from_x, to_x, n1, n2 = map(float, input("Enter from x, to x, n1, n2 in one line:").split())
 trap_method = [0, 0]
