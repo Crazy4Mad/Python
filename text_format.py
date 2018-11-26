@@ -41,24 +41,47 @@ def align_right(strings_width, cur_pos, max_width):
     cur_pos = 'r'
     Menu(strings_width, cur_pos)
     
-def change_word(strings_width):
-    before = input("What word do you want to change?\n")
-    after = input("What word do you want to change on?\n")
+def change_word(strings_width, cur_pos, max_width, is_remove = False):
+    if not is_remove:
+        before = input("What word do you want to change?\n")
+        after = input("What word do you want to change on?\n")
+    else:
+        before = input("What word do you want to remove?\n")
+        after = ''
+    if cur_pos != '':
+        TO_ORIGINAL(strings_width, cur_pos, max_width)
     for i in range(len(Mass)):
-        pass
+        aux = Mass[i].split(before)
+        new_i_mass = aux[0]
+        for j in range(1, len(aux)):
+            right, left = True, True
+            if (len(aux[j - 1]) >= 1 and aux[j - 1][-1] != ' ') or\
+                    (len(aux[j - 1]) == 0 and j != 1):
+                left = False
+            if (left and len(aux[j]) >= 1 and aux[j][0] != ' ') or\
+                    (len(aux[j]) == 0 and j != len(aux) - 1):
+                right = False
+            if right and left:
+                new_i_mass += after
+            else:
+                new_i_mass += before
+            new_i_mass += aux[j]
+            if is_remove and right and left and len(aux[j]) >= 1 and aux[j][0] == ' ':
+                new_i_mass = new_i_mass[:-len(aux[j])] + \
+                             (-len(aux[j]) < -1)*new_i_mass[-len(aux[j]) + 1:]
+        while is_remove and len(new_i_mass) > 0 and new_i_mass[-1] == ' ':
+            new_i_mass = new_i_mass[:-1]
+        Mass[i] = new_i_mass
+        strings_width[i] = len(Mass[i])
+        if max_width < strings_width[i]:
+            max_width = strings_width[i]
+    print()
     for i in range(len(Mass)):
         print(Mass[i])
-    Menu(strings_width)
+    Menu(strings_width, cur_pos)
 
-def remove_word(strings_width):
-    remove = input("What word do you want to remove?\n")
-    for i in range(len(Mass)):
-        pass
-    pass
-    for i in range(len(Mass)):
-        print(Mass[i])
-    Menu(strings_width)
-    pass
+def remove_word(strings_width, cur_pos, max_width):
+    change_word(strings_width, cur_pos, max_width, True)
 
 def ariphmetics(strings_width):
     pass
@@ -78,7 +101,6 @@ def Menu(strings_width, cur_pos):
         print("Incorrect dial was entered. Try again.")
         answer = int(input())
     flag = answer <= 3
-    print('\n')
     switch_case_emulator[answer](strings_width, cur_pos, max(strings_width))
 
 try:
