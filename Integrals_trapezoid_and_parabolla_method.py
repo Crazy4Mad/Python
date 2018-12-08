@@ -1,144 +1,99 @@
-from math import cos
+from math import cos, sin
+def count(x, flag=True):
+    return x**2*flag + x**3/3*(not flag)
 
-def trap_met(from_x, cur_section_number, section_length):
-    prev_field_area = from_x + (cur_section_number - 1)*section_length
-    return (cos(prev_field_area) + cos(prev_field_area +
-                                       section_length))*section_length / 2
+def trapezoid(from_x, to_x, sections):
+    delta = abs(from_x - to_x) / sections
+    sum = 0
+    for i in range(1, sections + 1):
+        a = (count(from_x + i*delta))
+        b = count(from_x + (i - 1)*delta)
+        a_b_sum = (a + b)*delta / 2
+        sum += a_b_sum
+    return abs(sum)
 
-def parab_met(x, cur_section_number, is_even, section_len):
-    return (is_even*4 + (not is_even)*2)*cos(x + cur_section_number*section_len)
-
-def calculate(from_x, to_x, n, parab_count=True, trap_count=True):
-    integral = [0, 0, 0]
-    section_len = abs(from_x - to_x) / n
-    is_even = False  # используется для определения, является ли номер текущего отрезка четным
-    # нужно для вычислений методом парабол
-    for cur_section_number in range(1, n):  # текущий номер отрезка
-        if trap_count:
-            integral[0] += trap_met(from_x, cur_section_number, section_len)
-        if parab_count and cur_section_number != n - 1:
-            integral[1] += parab_met(from_x, cur_section_number, is_even,
-                                     section_len)
-        is_even = not is_even
-    integral[-1] = section_len
-    return integral
+def parabola(from_x, to_x, sections):
+    try:
+        delta = abs(from_x - to_x) / sections
+        sum = 0
+        sum += count(from_x) + count(to_x)
+        for i in range(1, sections + 1, 2):
+            sum += 4*count(from_x + i*delta)
+        for i in range(2, sections, 2):
+            sum += 2*count(from_x + i*delta)
+        sum *= delta / 3
+        return abs(sum)
+    except  ZeroDivisionError: #ыскакивает при неченом количестве отрезков разбиения
+        return -1
 
 def Menu():
     try:
-        AMOUNT_OF_SIGNS = 16
-        TEXT_FORMAT = "{0:^{1}}"
-        DIAL_FORMAT = "{0:^{1}.9g}"
-        sections = [0, 0, 4, 2]
-        '''В пячейках хранятся числа, обозначающие
-           количество отрезков, на которые надо разделить областьъ
-           под графиком. В первых двух - вводимые n1, n2.
-           Во вторых двух - последние количества отрезков
-           при вычислении интеграла с заданной точностью'''
-        from_x, to_x, sections[0], sections[1], eps = map(float,
-                                                          input(
-                                                              "Enter x's beginning and ending coordinates, two dials, describing\n"
-                                                              "an amount of fields graphic should be divided to during\n"
-                                                              "calculating, and the precious of calculating. All in one line,\n"
-                                                              "dividing them by space. :").split())
-        integral = [0, 0, cos(from_x) + cos(to_x), cos(from_x) + cos(to_x), 0,
-                    0, 0, 0]
-        '''в первых двух ячеках вычисления методом трапеций
-           при разбиении на первое и второе количество
-           отрезков соответственно, две вторые - методом парабол,
-           последние две хранят значения, получившиеся в результате
-           вычисления интеграла с заданной точностью'''
-        for cur_amount_of_sections in range(
-                2):  # отвечает за количество отрезков (0 - n1, 1 - n2)
-            aux = calculate(from_x, to_x, int(sections[cur_amount_of_sections]))
-            integral[cur_amount_of_sections], integral[
-                cur_amount_of_sections + 2] = \
-                aux[0], aux[1] + integral[cur_amount_of_sections + 2]
-            integral[2 + cur_amount_of_sections] *= abs(from_x - to_x) / \
-                                                    (3 * int(sections[
-                                                                 cur_amount_of_sections]))
+        DIAL_FORMAT = "{:^12.8g}"
+        TEXT_FORMAT = "{:^12}"
 
-        print('|', TEXT_FORMAT.format('method', AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(sections[0], AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(sections[1], AMOUNT_OF_SIGNS), '|', sep='|')
-        print((AMOUNT_OF_SIGNS + 2) * 3 * '-')
-        print('|', TEXT_FORMAT.format('trapezoid', AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(integral[0], AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(integral[1], AMOUNT_OF_SIGNS), '|',
-              sep='|')
-        print((AMOUNT_OF_SIGNS + 2) * 3 * '-')
-        print('|', TEXT_FORMAT.format('parabola', AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(integral[2], AMOUNT_OF_SIGNS),
-              DIAL_FORMAT.format(integral[3], AMOUNT_OF_SIGNS), '|',
-              sep='|')
-        print((AMOUNT_OF_SIGNS + 2) * 3 * '-')
+        from_x = float(input("Enter the beginning value:"))
+        to_x = float(input("Enter the ending value:"))
+        first_precious = int(
+            float(input("Enter the first amount of sections the function"
+                        "should be divided on:")))
+        sec_precious = int(
+            float(input("Enter the second amount of sections the function"
+                        "should be divided on:")))
+        e = float(input("Enter the required precious:"))
+        integral_table = [[0] * 2 for i in range(2)]
 
-        # вычисиления с заданной точностью
-        cur_trap_and_parab = calculate(from_x, to_x, sections[-1])
-        cur_trap_and_parab[1] += cos(from_x) + cos(to_x)
-        cur_trap_and_parab[1] *= cur_trap_and_parab[-1] / 3
-        integral[5], integral[7] = cur_trap_and_parab[0], cur_trap_and_parab[1]
+        # вычисляю интегралы с разбиением на заданные количества отрезков
+        integral_table[0][0] = trapezoid(from_x, to_x, first_precious)
+        integral_table[0][1] = trapezoid(from_x, to_x, sec_precious)
+        integral_table[1][0] = parabola(from_x, to_x,
+                                        first_precious * (first_precious
+                                                          % 2 == 0))
+        integral_table[1][1] = parabola(from_x, to_x,
+                                        sec_precious * (sec_precious
+                                                        % 2 == 0))
 
-        cur_trap_and_parab = calculate(from_x, to_x, sections[-2])
-        cur_trap_and_parab[1] += cos(from_x) + cos(to_x)
-        cur_trap_and_parab[1] *= cur_trap_and_parab[-1] / 3
-        integral[4], integral[6] = cur_trap_and_parab[0], cur_trap_and_parab[1]
+        print('|', TEXT_FORMAT.format('method'),
+              DIAL_FORMAT.format(first_precious),
+              DIAL_FORMAT.format(sec_precious), '|', sep='|')
+        print(14 * 3 * '-')
+        print('|', TEXT_FORMAT.format('trapezoid'),
+              DIAL_FORMAT.format(integral_table[0][0]),
+              DIAL_FORMAT.format(integral_table[0][1]), '|', sep='|')
+        print(14 * 3 * '-')
+        print('|', TEXT_FORMAT.format('parabola'),
+              DIAL_FORMAT.format(integral_table[1][0]) * (
+                          integral_table[1][0] != -1) +
+              TEXT_FORMAT.format('-') * (integral_table[1][0] == -1),
+              DIAL_FORMAT.format(integral_table[1][1]) * (
+                          integral_table[1][1] != -1) +
+              TEXT_FORMAT.format('-') * (integral_table[1][1] == -1),
+              '|', sep='|')
+        print(14 * 3 * '-')
 
-        parab, trap = True, True
-        if (abs(integral[4] - integral[5])) <= eps: trap = False
-        if (abs(integral[6] - integral[7])) <= eps: parab = False
+        correct_value = abs(count(to_x, False) - count(from_x, False))
+        relative_trapezoid = abs(
+            max(integral_table[0]) - correct_value) / correct_value
+        relative_parabola = abs(
+            max(integral_table[1]) - correct_value) / correct_value
 
-        while parab or trap:
-            integral[5], integral[7] = integral[4], integral[6]
-            sections[2], sections[3] = sections[2] * 2, sections[2]
-
-            cur_trap_and_parab = calculate(from_x, to_x, int(sections[2]),
-                                           parab, trap)
-            if trap:
-                integral[4] = cur_trap_and_parab[0]
-            if parab:
-                cur_trap_and_parab[1] += cos(from_x) + cos(to_x)
-                cur_trap_and_parab[1] *= cur_trap_and_parab[-1] / 3
-                integral[6] = cur_trap_and_parab[1]
-
-            if (abs(integral[4] - integral[5])) <= eps: trap = False
-            if (abs(integral[6] - integral[7])) <= eps: parab = False
-
-        print(
-            "Integral's value calculated by trapezoid method with entered precious:",
-            DIAL_FORMAT.format(integral[4], AMOUNT_OF_SIGNS))
-        print(
-            "Integral's value calculated by trapezoid method with entered precious:",
-            DIAL_FORMAT.format(integral[6], AMOUNT_OF_SIGNS), end='\n\n')
-        trap0_abs, parab0_abs = abs(integral[4] - integral[0]), abs(
-            integral[6] - integral[2])
-        trap1_abs, parab1_abs = abs(integral[4] - integral[1]), abs(
-            integral[6] - integral[3])
-        print("Absolute mistake (trapezoid method).\nOn", int(sections[0]),
-              "fields divided:",
-              DIAL_FORMAT.format(trap0_abs, AMOUNT_OF_SIGNS))
-        print('On', int(sections[1]), "fields divided:",
-              DIAL_FORMAT.format(trap1_abs, AMOUNT_OF_SIGNS),
-              end='\n\n')
-        print("Absolute mistake (parabola method).\nOn", int(sections[0]),
-              "fields divided:",
-              DIAL_FORMAT.format(parab0_abs, AMOUNT_OF_SIGNS))
-        print('On', int(sections[1]), "fields divided:",
-              DIAL_FORMAT.format(parab1_abs, AMOUNT_OF_SIGNS),
-              end='\n\n')
-        print("Relative mistake (trapezoid method).\nOn", int(sections[0]),
-              "fields divided:",
-              DIAL_FORMAT.format(trap0_abs / integral[4], AMOUNT_OF_SIGNS))
-        print('On', int(sections[1]), "fields divided:",
-              DIAL_FORMAT.format(trap1_abs / integral[4], AMOUNT_OF_SIGNS),
-              end='\n\n')
-        print("Relative mistake (parabola method).\nOn", int(sections[0]),
-              "fields divided:",
-              DIAL_FORMAT.format(parab0_abs / integral[6], AMOUNT_OF_SIGNS))
-        print('On', int(sections[1]), "fields divided:",
-              DIAL_FORMAT.format(parab1_abs / integral[6], AMOUNT_OF_SIGNS),
-              end='\n\n')
+        if relative_parabola < relative_trapezoid:
+            sections = 2
+            cur_value = trapezoid(from_x, to_x, sections)
+            while abs(cur_value - correct_value) > e:
+                sections *= 2
+                cur_value = trapezoid(from_x, to_x, sections)
+            print("Trapezoid method with required precious:",
+                  DIAL_FORMAT.format(cur_value))
+            print("Amount of sections:", DIAL_FORMAT.format(sections))
+        else:
+            sections = 2
+            cur_value = parabola(from_x, to_x, sections)
+            while abs(cur_value - correct_value) > e:
+                sections *= 2
+                cur_value = parabola(from_x, to_x, sections)
+            print("Parabola method with required precious:",
+                  DIAL_FORMAT.format(cur_value))
+            print("Amount of sections:", DIAL_FORMAT.format(sections))
     except ValueError:
-        print("Incorrect input!")
-    except ...:
-        print("Mistake during program running.")
+        print("Incorrect input")
 Menu()
