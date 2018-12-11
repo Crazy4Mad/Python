@@ -4,7 +4,7 @@ TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружно
         "don't worry, be happy now. I'm",
         "your baby tonight.", "Hello",
         "it's me. Treat your better,",
-        "не равна 5 + 3 + 9"]
+        "не равна 5 +3 +a +15"]
 text_copy = deepcopy(TEXT)
 strings_width = [0 for i in range(len(TEXT))]
 
@@ -146,7 +146,7 @@ def count_sums_and_difference(max_len, side):
     for i in range(len(TEXT)):
         TEXT[i] = TEXT[i].split('+')
         for j in range(len(TEXT[i])):
-            TEXT[i][j] = TEXT[i][j].split()
+            TEXT[i][j] = TEXT[i][j].split(' ')
         j = 1
         while j < len(TEXT[i]):
             try:
@@ -157,6 +157,12 @@ def count_sums_and_difference(max_len, side):
                 second = int(TEXT[i][j][req_after])
                 print(TEXT[i][j - 1][req_before])
                 TEXT[i][j - 1][req_before] = str(first + second)
+                if req_before == -2:
+                    TEXT[i][j - 1].pop(-1)
+                    req_before += 1
+                if req_after == 1:
+                    TEXT[i][j].pop(0)
+                    req_after -= 1
                 print(TEXT[i][j - 1])
                 TEXT[i][j].pop(req_after)
                 TEXT[i][j - 1].extend(TEXT[i][j])
