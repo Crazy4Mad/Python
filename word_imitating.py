@@ -1,6 +1,6 @@
 from math import ceil, floor
 from copy import deepcopy
-TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
+TEXT = TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
         "don't worry, be happy now. I'm",
         "your baby tonight.", "Hello",
         "it's me. Treat your better,",
@@ -19,7 +19,6 @@ def find_maximum():
 def RETURNING():
     global TEXT, text_copy
     TEXT = deepcopy(text_copy)
-
 
 def align_left(max_len, side):
     global TEXT
@@ -141,38 +140,42 @@ def delete_word(max_len, side):
 def delete_max_length_word_in_max_len_sentence():
     pass
 
-def count_sums_and_difference(max_len, side):
-    global TEXT, text_copy
-    for i in range(len(TEXT)):
-        TEXT[i] = TEXT[i].split('+')
-        for j in range(len(TEXT[i])):
-            TEXT[i][j] = TEXT[i][j].split(' ')
+def COUNT(text_mass, delim, counter = 0):
+    for i in range(len(text_mass)):
+        text_mass[i] = text_mass[i].split(delim)
+        for j in range(len(text_mass[i])):
+            if delim == '+' and counter == 0:
+                COUNT(text_mass[i], '-')
+                counter += 1
+            text_mass[i][j] = text_mass[i][j].split(' ')
         j = 1
-        while j < len(TEXT[i]):
+        while j < len(text_mass[i]):
             try:
                 req_before, req_after = -1, 0
-                if TEXT[i][j - 1][-1] == '':req_before = -2
-                if TEXT[i][j][0] == '':req_after = 1
-                first = int(TEXT[i][j - 1][req_before])
-                second = int(TEXT[i][j][req_after])
-                print(TEXT[i][j - 1][req_before])
-                TEXT[i][j - 1][req_before] = str(first + second)
+                if text_mass[i][j - 1][-1] == '':req_before = -2
+                if text_mass[i][j][0] == '':req_after = 1
+                first = int(text_mass[i][j - 1][req_before])
+                second = int(text_mass[i][j][req_after])
+                text_mass[i][j - 1][req_before] = str((first + second)*(delim == '+')
+                                                + (first - second)*(delim == '-'))
                 if req_before == -2:
-                    TEXT[i][j - 1].pop(-1)
+                    text_mass[i][j - 1].pop(-1)
                     req_before += 1
                 if req_after == 1:
-                    TEXT[i][j].pop(0)
+                    text_mass[i][j].pop(0)
                     req_after -= 1
-                print(TEXT[i][j - 1])
-                TEXT[i][j].pop(req_after)
-                TEXT[i][j - 1].extend(TEXT[i][j])
-                TEXT[i].pop(j)
-                print(TEXT[i][j - 1])
+                text_mass[i][j].pop(req_after)
+                text_mass[i][j - 1].extend(text_mass[i][j])
+                text_mass[i].pop(j)
             except ValueError:
-                TEXT[i][j - 1] = ' '.join(TEXT[i][j - 1])
+                text_mass[i][j - 1] = ' '.join(text_mass[i][j - 1])
                 j += 1
-        TEXT[i][-1] = ' '.join(TEXT[i][-1])
-        TEXT[i] = '+'.join(TEXT[i])
+        text_mass[i][-1] = ' '.join(text_mass[i][-1])
+        text_mass[i] = (delim).join(text_mass[i])
+
+def count_sums_and_difference(max_len, side):
+    global TEXT, text_copy
+    COUNT(TEXT, '+')
     text_copy = deepcopy(TEXT)
     maximum = find_maximum()
     if side == 'r':
