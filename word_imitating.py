@@ -1,64 +1,63 @@
 from math import ceil, floor
+from copy import deepcopy
 TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
         "don't worry, be happy now. I'm",
         "your baby tonight.", "Hello",
         "it's me. Treat your better,",
-        "не равна 3.14*5/9."]
+        "не равна 5 + 3 + 9"]
+text_copy = deepcopy(TEXT)
 strings_width = [0 for i in range(len(TEXT))]
 
-def find_maximum(text = ["than he can. Ааааааааааа-пчхи! Длина окружности",
-        "don't worry, be happy now. I'm",
-        "your baby tonight.", "Hello",
-        "it's me. Treat your better,",
-        "не равна 3.14*5/9."]):
+def find_maximum():
+    global text_copy
     max_len = 0
-    for i in range(len(text)):
-        strings_width[i] = len(text[i])
-        max_len = max(max_len, len(text[i]))
+    for i in range(len(text_copy)):
+        strings_width[i] = len(text_copy[i])
+        max_len = max(max_len, len(text_copy[i]))
     return max_len
 
-def RETURNING(max_len, side):
-    global TEXT, strings_width
-    if side == 'l':
-        for i in range(len(TEXT)):
-            TEXT[i] = TEXT[i][:strings_width[i]]
-    elif side == 'r':
-        for i in range(len(TEXT)):
-            TEXT[i] = TEXT[i][max_len - strings_width[i]:]
-    elif side == 'w':
-        
+def RETURNING():
+    global TEXT, text_copy
+    TEXT = deepcopy(text_copy)
+
 
 def align_left(max_len, side):
-    if side != 'l':RETURNING(max_len, side)
-    for i in range(len(TEXT)):
-        TEXT[i] += (max_len - len(TEXT[i])) * ' '
+    global TEXT
+    if side != 'l':
+        RETURNING()
+        for i in range(len(TEXT)):
+            TEXT[i] += (max_len - len(TEXT[i])) * ' '
     Menu('l', max_len)
 
 def align_right(max_len, side):
-    if side != 'r':RETURNING(max_len, side)
-    for i in range(len(TEXT)):
-        TEXT[i] = (max_len - len(TEXT[i])) * ' ' + TEXT[i]
+    global TEXT
+    if side != 'r':
+        RETURNING()
+        print(TEXT[2])
+        for i in range(len(TEXT)):
+            TEXT[i] = (max_len - len(TEXT[i])) * ' ' + TEXT[i]
     Menu('r', max_len)
 
 def align_width(max_len, side):
+    global TEXT
     if side != 'w':
-        RETURNING(max_len, side)
+        RETURNING()
         for i in range(len(TEXT)):
             spaces = max_len - len(TEXT[i])
-            TEXT[i] = [j for j in TEXT[i].split(' ') if j != '']
-            counter = 0
-            while spaces != 0 and len(TEXT[i]) > 1:
-                if counter == len(TEXT[i]) - 1:
-                    counter = 0
-                TEXT[i][counter] += ' '
-                spaces -= 1
-                counter += 1
+            TEXT[i] = [j for j in TEXT[i].split(' ')]
             if len(TEXT[i]) == 1:
                 TEXT[i] = floor(spaces/2)*' ' + str(TEXT[i][0]) +\
                            ceil(spaces/2)*' '
             elif len(TEXT[i]) == 0:
                 TEXT[i] = spaces*' '
             else:
+                average_spaces_per_word = floor(spaces / (len(TEXT[i]) - 1))
+                delta = spaces - average_spaces_per_word * (len(TEXT[i]) - 1)
+                for j in range(len(TEXT[i]) - 1):
+                    TEXT[i][j] += " " * average_spaces_per_word
+                    if delta > 0:
+                        TEXT[i][j] += ' '
+                        delta -= 1
                 TEXT[i] = ' '.join(TEXT[i])
     Menu('w', max_len)
 
@@ -87,8 +86,8 @@ def is_letter(before, after, prev = 'A'):
     return [letter_before, letter_after or prev == '', aux1 and aux2]
 
 def replace_word(max_len, side, delete = False):
-    global TEXT
-    RETURNING(max_len, side)
+    global TEXT, text_copy
+    RETURNING()
     if not delete:
         word_to_replace = input("Enter a word to be replaced:")
         replace_on = input("Enter a word to replace on:")
@@ -126,16 +125,61 @@ def replace_word(max_len, side, delete = False):
                     new_text += word_to_replace + TEXT[j][k][m]
             TEXT[j][k] = new_text
         TEXT[j] = ' '.join(TEXT[j])
-    Menu(find_maximum(TEXT), side)
+    text_copy = deepcopy(TEXT)
+    maximum = find_maximum()
+    if side == 'r':
+        align_right(maximum, '')
+    elif side == 'l':
+        align_left(maximum, '')
+    elif side == 'w':
+        align_width(maximum, '')
+    Menu(side, maximum)
 
 def delete_word(max_len, side):
     replace_word(max_len, side, True)
 
 def delete_max_length_word_in_max_len_sentence():
-    RETURNING()
+    pass
+
+def count_sums_and_difference(max_len, side):
+    global TEXT, text_copy
+    for i in range(len(TEXT)):
+        TEXT[i] = TEXT[i].split('+')
+        for j in range(len(TEXT[i])):
+            TEXT[i][j] = TEXT[i][j].split()
+        j = 1
+        while j < len(TEXT[i]):
+            try:
+                req_before, req_after = -1, 0
+                if TEXT[i][j - 1][-1] == '':req_before = -2
+                if TEXT[i][j][0] == '':req_after = 1
+                first = int(TEXT[i][j - 1][req_before])
+                second = int(TEXT[i][j][req_after])
+                print(TEXT[i][j - 1][req_before])
+                TEXT[i][j - 1][req_before] = str(first + second)
+                print(TEXT[i][j - 1])
+                TEXT[i][j].pop(req_after)
+                TEXT[i][j - 1].extend(TEXT[i][j])
+                TEXT[i].pop(j)
+                print(TEXT[i][j - 1])
+            except ValueError:
+                TEXT[i][j - 1] = ' '.join(TEXT[i][j - 1])
+                j += 1
+        TEXT[i][-1] = ' '.join(TEXT[i][-1])
+        TEXT[i] = '+'.join(TEXT[i])
+    text_copy = deepcopy(TEXT)
+    maximum = find_maximum()
+    if side == 'r':
+        align_right(maximum, '')
+    elif side == 'l':
+        align_left(maximum, '')
+    elif side == 'w':
+        align_width(maximum, '')
+    Menu(side, maximum)
 
 
 def Menu(side='', max_string_len = 0):
+    global TEXT
     if TEXT != '':
         print()
         for i in range(len(TEXT)):
@@ -148,7 +192,8 @@ def Menu(side='', max_string_len = 0):
             3: align_width,
             4: replace_word,
             5: delete_word,
-            6: delete_max_length_word_in_max_len_sentence}
+            6: count_sums_and_difference,
+            7: delete_max_length_word_in_max_len_sentence}
     for i in range(len(menu)):
         print(i + 1, '-', ' '.join(str(menu[i + 1]).split(' ')[1].split('_')))
     answer = int(input("Enter an appropriate dial to pick up an action:"))
