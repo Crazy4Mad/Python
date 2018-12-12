@@ -1,10 +1,15 @@
 from math import ceil, floor
 from copy import deepcopy
-TEXT = ["than he can. пчхи-Ааааааааааа 5 + 13; Длина окружности",
-        " не равна 5 +3 + -99 n 15 -",
-        "18 don't worry, be happy now. I'm",
-        "your baby tonight.", "Hello",
-        "it's me. Treat your better,"]
+TEXT = ["   В конце концов партия объявит, что 25 + 2 - 0 = 5 + 7, и 7 -     ",
+'5 придется в это верить. Рано или поздно она издаст такой указ, к',
+'этому неизбежно ведет логика ее власти. Ее философия молчаливо ',
+' отрицает не только верность твоего. 13 - 9 20 + 15 восприятия, но и само существование',
+'внешнего мира. Ересь из ересей — здравый смысл. И ужасно не то, что тебя ',
+' убьют за противоположное мнение, а то, что они, может быть, правы. В самом',
+'деле, откуда мы знаем, что 2 - 29 = 4 + 8? Или что существует сила ',
+' тяжести? Или что прошлое нельзя изменить? Если и прошлое и внешний мира',
+'существуют только в сознании, а сознанием можно управлять — тогда что? ',
+'        Д. Оруэлл "1984"']
 text_copy = deepcopy(TEXT)
 strings_width = [0 for i in range(len(TEXT))]
 
@@ -42,21 +47,26 @@ def align_width(max_len, side):
     if side != 'w':
         RETURNING()
         for i in range(len(TEXT)):
-            spaces = max_len - len(TEXT[i])
-            TEXT[i] = [j for j in TEXT[i].split(' ')]
+            TEXT[i] = [j for j in TEXT[i].split()]
+            length = 0
+            for aux in TEXT[i]:
+                a = aux
+                length += len(aux)
+            length += len(TEXT[i]) - 1
+            spaces = max_len - length
             if len(TEXT[i]) == 1:
                 TEXT[i] = floor(spaces/2)*' ' + str(TEXT[i][0]) +\
                            ceil(spaces/2)*' '
             elif len(TEXT[i]) == 0:
                 TEXT[i] = spaces*' '
             else:
-                average_spaces_per_word = floor(spaces / (len(TEXT[i]) - 1))
-                delta = spaces - average_spaces_per_word * (len(TEXT[i]) - 1)
-                for j in range(len(TEXT[i]) - 1):
-                    TEXT[i][j] += " " * average_spaces_per_word
-                    if delta > 0:
-                        TEXT[i][j] += ' '
-                        delta -= 1
+                j = 0
+                while spaces != 0:
+                    TEXT[i][j] += ' '
+                    spaces -= 1
+                    j += 1
+                    if j > len(TEXT[i]) - 2:
+                        j = 0
                 TEXT[i] = ' '.join(TEXT[i])
     Menu('w', max_len)
 
@@ -123,7 +133,7 @@ def replace_word(max_len, side, delete = False):
                         new_text += TEXT[j][k][m]
                 else:
                     new_text += word_to_replace + TEXT[j][k][m]
-            TEXT[j][k] = new_text
+            TEXT[j][k] = ' '.join(new_text.split())
         TEXT[j] = ' '.join(TEXT[j])
     text_copy = deepcopy(TEXT)
     maximum = find_maximum()
@@ -138,8 +148,71 @@ def replace_word(max_len, side, delete = False):
 def delete_word(max_len, side):
     replace_word(max_len, side, True)
 
-def delete_max_length_word_in_max_len_sentence():
-    pass
+def delete_max_length_word_in_max_len_sentence(max_len, side):
+    global TEXT, text_copy
+    RETURNING()
+    TEXT = (' \n '.join(TEXT)).split('.')
+    print(TEXT)
+    for i in range(len(TEXT)):
+        TEXT[i] = TEXT[i].split('!')
+        for j in range(len(TEXT[i])):
+            TEXT[i][j] = TEXT[i][j].split('?')
+
+    max_len, max_f, max_s, max_t = 0, -1, -1, -1
+    for i in range(len(TEXT)):
+        for j in range(len(TEXT[i])):
+            for k in range(len(TEXT[i][j])):
+                if len(TEXT[i][j][k]) - TEXT[i][j][k].count(' \n ') > max_len:
+                    max_len = len(TEXT[i][j][k])
+                    max_f, max_s, max_t = i, j, k
+    sentence = ''
+    print(TEXT)
+    if max_f != -1:
+        if max_s != -1:
+            if max_t != -1:
+                sentence = TEXT[max_f][max_s][max_t]
+            else:
+                sentence = TEXT[max_f][max_s]
+        else:
+            sentence = TEXT[max_f]
+    print(sentence)
+    sentence = sentence.split(' ')
+
+    max_word, max_ind = 0, 0
+    for i in range(len(sentence)):
+        if len(sentence[i]) > max_word:
+            max_word = len(sentence[i])
+            max_ind = i
+    sentence.pop(max_ind)
+    sentence = ' '.join(sentence)
+
+    if max_f != -1:
+        if max_s != -1:
+            if max_t != -1:
+                TEXT[max_f][max_s][max_t] = sentence
+            else:
+                TEXT[max_f][max_s] = sentence
+        else:
+            TEXT[max_f] = sentence
+
+    for i in range(len(TEXT)):
+        for j in range(len(TEXT[i])):
+            if isinstance(TEXT[i][j], list):
+                TEXT[i][j] = '?'.join(TEXT[i][j])
+        if isinstance(TEXT[i], list):
+            TEXT[i] = '!'.join(TEXT[i])
+    TEXT = '.'.join(TEXT)
+
+    TEXT = TEXT.split(' \n ')
+    text_copy = deepcopy(TEXT)
+    maximum = find_maximum()
+    if side == 'r':
+        align_right(maximum, '')
+    elif side == 'l':
+        align_left(maximum, '')
+    elif side == 'w':
+        align_width(maximum, '')
+    Menu(side, maximum)
 
 def COUNT(text_mass, delim, counter=0):
     for i in range(len(text_mass)):
@@ -154,8 +227,8 @@ def COUNT(text_mass, delim, counter=0):
         while j < len(text_mass[i]):
             try:
                 req_before, req_after = -1, 0
-                if text_mass[i][j - 1][-1] == '': req_before = -2
-                if text_mass[i][j][0] == '': req_after = 1
+                while text_mass[i][j - 1][req_before] == '': req_before -= 1
+                while text_mass[i][j][req_after] == '': req_after += 1
                 first = int(text_mass[i][j - 1][req_before])
                 second = int(text_mass[i][j][req_after])
                 if '\n' in text_mass[i][j][req_after]:
@@ -163,10 +236,10 @@ def COUNT(text_mass, delim, counter=0):
                 text_mass[i][j - 1][req_before] = str(
                     (first + second) * (delim == '+')
                     + (first - second) * (delim == '-'))
-                if req_before == -2:
+                while req_before != -1:
                     text_mass[i][j - 1].pop(-1)
                     req_before += 1
-                if req_after == 1:
+                while req_after != 0:
                     text_mass[i][j].pop(0)
                     req_after -= 1
                 text_mass[i][j].pop(req_after)
@@ -195,7 +268,6 @@ def count_sums_and_difference(max_len, side):
     elif side == 'w':
         align_width(maximum, '')
     Menu(side, maximum)
-
 
 def Menu(side='', max_string_len = 0):
     global TEXT
