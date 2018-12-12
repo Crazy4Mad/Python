@@ -1,8 +1,8 @@
 from math import ceil, floor
 from copy import deepcopy
-TEXT = ["не равна 5 +3 -99 +15 -",
+TEXT = ["than he can. пчхи-Ааааааааааа 5 + 13; Длина окружности",
+        " не равна 5 +3 + -99 n 15 -",
         "18 don't worry, be happy now. I'm",
-        "than he can. пчхи-Ааааааааааа! Длина окружности",
         "your baby tonight.", "Hello",
         "it's me. Treat your better,"]
 text_copy = deepcopy(TEXT)
@@ -60,7 +60,7 @@ def align_width(max_len, side):
                 TEXT[i] = ' '.join(TEXT[i])
     Menu('w', max_len)
 
-def is_letter(before, after, prev = 'A'):
+def is_letter(before, after='', prev = 'A'):
     # флаги, отвечающие за пустые символы слева и справа от слова
     aux1, aux2 = False, False
     if before != '':
@@ -97,6 +97,7 @@ def replace_word(max_len, side, delete = False):
         #делю строку на слова
         TEXT[j] = TEXT[j].split()
         for k in range(len(TEXT[j])):
+            aux = TEXT[j][k]
             #делю слово на нужное мне подслово
             TEXT[j][k] = TEXT[j][k].split(word_to_replace)
             # сюда записываю измененную строку
@@ -180,11 +181,11 @@ def COUNT(text_mass, delim, counter=0):
 def count_sums_and_difference(max_len, side):
     global TEXT, text_copy
     RETURNING()
-    TEXT = '\n'.join(TEXT)
-    TEXT = TEXT.split('.')
-    COUNT(TEXT, '+')
-    TEXT = '.'.join(TEXT)
-    TEXT = TEXT.split(' \n ')
+    for ending in ['.', '!', '?', ';', ',']:
+        TEXT = ('\n'.join(TEXT)).split(ending)
+        COUNT(TEXT, '+')
+        TEXT = (ending.join(TEXT)).split('\n')
+
     text_copy = deepcopy(TEXT)
     maximum = find_maximum()
     if side == 'r':
