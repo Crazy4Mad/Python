@@ -1,8 +1,8 @@
 from math import ceil, floor
 from copy import deepcopy
-TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
-        "не равна 5 +3 -99 +15",
-        "don't worry, be happy now. I'm",
+TEXT = ["не равна 5 +3 -99 +15 -",
+        "18 don't worry, be happy now. I'm",
+        "than he can. пчхи-Ааааааааааа! Длина окружности",
         "your baby tonight.", "Hello",
         "it's me. Treat your better,"]
 text_copy = deepcopy(TEXT)
@@ -140,8 +140,7 @@ def delete_word(max_len, side):
 def delete_max_length_word_in_max_len_sentence():
     pass
 
-def COUNT(text_mass, delim, counter = 0):#должно работать с прежложениями,
-                                         # а не строками
+def COUNT(text_mass, delim, counter=0):
     for i in range(len(text_mass)):
         counter = 0
         text_mass[i] = text_mass[i].split(delim)
@@ -154,12 +153,15 @@ def COUNT(text_mass, delim, counter = 0):#должно работать с пр�
         while j < len(text_mass[i]):
             try:
                 req_before, req_after = -1, 0
-                if text_mass[i][j - 1][-1] == '':req_before = -2
-                if text_mass[i][j][0] == '':req_after = 1
+                if text_mass[i][j - 1][-1] == '': req_before = -2
+                if text_mass[i][j][0] == '': req_after = 1
                 first = int(text_mass[i][j - 1][req_before])
                 second = int(text_mass[i][j][req_after])
-                text_mass[i][j - 1][req_before] = str((first + second)*(delim == '+')
-                                                + (first - second)*(delim == '-'))
+                if '\n' in text_mass[i][j][req_after]:
+                    text_mass[i][j].insert(req_after + 1, '\n')
+                text_mass[i][j - 1][req_before] = str(
+                    (first + second) * (delim == '+')
+                    + (first - second) * (delim == '-'))
                 if req_before == -2:
                     text_mass[i][j - 1].pop(-1)
                     req_before += 1
@@ -178,7 +180,11 @@ def COUNT(text_mass, delim, counter = 0):#должно работать с пр�
 def count_sums_and_difference(max_len, side):
     global TEXT, text_copy
     RETURNING()
+    TEXT = '\n'.join(TEXT)
+    TEXT = TEXT.split('.')
     COUNT(TEXT, '+')
+    TEXT = '.'.join(TEXT)
+    TEXT = TEXT.split(' \n ')
     text_copy = deepcopy(TEXT)
     maximum = find_maximum()
     if side == 'r':
