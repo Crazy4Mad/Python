@@ -1,10 +1,10 @@
 from math import ceil, floor
 from copy import deepcopy
-TEXT = TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
+TEXT = ["than he can. пчхи-Ааааааааааа! Длина окружности",
+        "не равна 5 +3 -99 +15",
         "don't worry, be happy now. I'm",
         "your baby tonight.", "Hello",
-        "it's me. Treat your better,",
-        "не равна 5 +3 +a +15"]
+        "it's me. Treat your better,"]
 text_copy = deepcopy(TEXT)
 strings_width = [0 for i in range(len(TEXT))]
 
@@ -140,8 +140,10 @@ def delete_word(max_len, side):
 def delete_max_length_word_in_max_len_sentence():
     pass
 
-def COUNT(text_mass, delim, counter = 0):
+def COUNT(text_mass, delim, counter = 0):#должно работать с прежложениями,
+                                         # а не строками
     for i in range(len(text_mass)):
+        counter = 0
         text_mass[i] = text_mass[i].split(delim)
         for j in range(len(text_mass[i])):
             if delim == '+' and counter == 0:
@@ -175,6 +177,7 @@ def COUNT(text_mass, delim, counter = 0):
 
 def count_sums_and_difference(max_len, side):
     global TEXT, text_copy
+    RETURNING()
     COUNT(TEXT, '+')
     text_copy = deepcopy(TEXT)
     maximum = find_maximum()
@@ -195,18 +198,21 @@ def Menu(side='', max_string_len = 0):
             print(TEXT[i])
         print()
     max_string_len = find_maximum()
-
-    menu = {1: align_left,
-            2: align_right,
-            3: align_width,
-            4: replace_word,
-            5: delete_word,
-            6: count_sums_and_difference,
-            7: delete_max_length_word_in_max_len_sentence}
-    for i in range(len(menu)):
-        print(i + 1, '-', ' '.join(str(menu[i + 1]).split(' ')[1].split('_')))
-    answer = int(input("Enter an appropriate dial to pick up an action:"))
-    while answer not in menu:
-        answer = int(input("Incorrect input. Try again:"))
-    menu[answer](max_string_len, side)
+    try:
+        menu = {1: align_left,
+                2: align_right,
+                3: align_width,
+                4: replace_word,
+                5: delete_word,
+                6: count_sums_and_difference,
+                7: delete_max_length_word_in_max_len_sentence}
+        for i in range(len(menu)):
+            print(i + 1, '-',
+                  ' '.join(str(menu[i + 1]).split(' ')[1].split('_')))
+        answer = int(input("Enter an appropriate dial to pick up an action:"))
+        while answer not in menu:
+            answer = int(input("Incorrect input. Try again:"))
+        menu[answer](max_string_len, side)
+    except ValueError:
+        print("Incorrect input!")
 Menu()
