@@ -16,6 +16,7 @@ strings_width = [0 for i in range(len(TEXT))]
 def find_maximum():
     global text_copy
     max_len = 0
+    #ищем максимальную по длине строку
     for i in range(len(text_copy)):
         strings_width[i] = len(text_copy[i])
         max_len = max(max_len, len(text_copy[i]))
@@ -136,6 +137,7 @@ def replace_word(max_len, side, delete = False):
             TEXT[j][k] = ' '.join(new_text.split())
         TEXT[j] = ' '.join(TEXT[j])
     text_copy = deepcopy(TEXT)
+    #Нахожу максимальную по длине строку в тексте с замененным словом
     maximum = find_maximum()
     if side == 'r':
         align_right(maximum, '')
@@ -151,6 +153,8 @@ def delete_word(max_len, side):
 def delete_max_length_word_in_max_len_sentence(max_len, side):
     global TEXT, text_copy
     RETURNING()
+    #сливаю текст в одну строку. Делю его на повествовательные предложения, затем
+    #на восклицательные, потом на вопросительные
     TEXT = (' \n '.join(TEXT)).split('.')
     print(TEXT)
     for i in range(len(TEXT)):
@@ -158,6 +162,9 @@ def delete_max_length_word_in_max_len_sentence(max_len, side):
         for j in range(len(TEXT[i])):
             TEXT[i][j] = TEXT[i][j].split('?')
 
+    #Нахожу максимальное по длине предложение в тексте.
+    #max_f - координата по повествовательным предложениям, max_s - по восклицательным
+    #max_t - о вопросительным
     max_len, max_f, max_s, max_t = 0, -1, -1, -1
     for i in range(len(TEXT)):
         for j in range(len(TEXT[i])):
@@ -165,8 +172,8 @@ def delete_max_length_word_in_max_len_sentence(max_len, side):
                 if len(TEXT[i][j][k]) - TEXT[i][j][k].count(' \n ') > max_len:
                     max_len = len(TEXT[i][j][k])
                     max_f, max_s, max_t = i, j, k
+    #Беру найденное предложение, разделяю его на слова и нахожу максимальное по длине слово
     sentence = ''
-    print(TEXT)
     if max_f != -1:
         if max_s != -1:
             if max_t != -1:
@@ -195,6 +202,7 @@ def delete_max_length_word_in_max_len_sentence(max_len, side):
         else:
             TEXT[max_f] = sentence
 
+    #Возвращаю все к исходному виду
     for i in range(len(TEXT)):
         for j in range(len(TEXT[i])):
             if isinstance(TEXT[i][j], list):
@@ -226,6 +234,9 @@ def COUNT(text_mass, delim, counter=0):
         j = 1
         while j < len(text_mass[i]):
             try:
+                #смотрим на предыдущий и последующий значащие элементы.
+                #если они числа, то выполняем над ними действия
+                #иначе оставляем, как есть
                 req_before, req_after = -1, 0
                 while text_mass[i][j - 1][req_before] == '': req_before -= 1
                 while text_mass[i][j][req_after] == '': req_after += 1
