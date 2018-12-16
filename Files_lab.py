@@ -32,7 +32,7 @@ def create_new_file():
     except FileNotFoundError:
         try:
             PATH = FILES_SAVING_PATH + file_name + '.txt'
-            cur_file = codecs.open(PATH, encoding='utf8' 'w')
+            cur_file = codecs.open(PATH, 'w', encoding='utf8')
             print("File with name", '"', file_name, '"', "successfully created.")
             cur_file_name = file_name
             cur_file.close()
