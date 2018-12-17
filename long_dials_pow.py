@@ -27,4 +27,6 @@ for i in range(len(result) - 1, 0, -1):
     result[i] %= 10
 
 result = [str(x) for x in result]
+if result[0] == '0':
+    result.pop(0)
 print(''.join(result))
