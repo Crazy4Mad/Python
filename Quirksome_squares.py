@@ -2,11 +2,10 @@ from math import sqrt, floor
 input_file = open('input.txt', 'r')
 output_file = open('output.txt', 'w')
 
-liquid_input_values = [2, 4, 6, 8]
 for digit_length in input_file:
     try:
         int_digit_length = int(digit_length)
-        if int_digit_length in liquid_input_values:
+        if int_digit_length in range(2, 10, 2):
             for dial in range(10 ** int(int_digit_length / 2)):
                 req_dial = dial ** 2
                 str_req_dial = str(req_dial)
