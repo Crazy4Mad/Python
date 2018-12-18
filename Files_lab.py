@@ -1,4 +1,3 @@
-# -*- coding: <utf-8> -*-
 import os, codecs
 cur_file = ''
 cur_file_name = ''
@@ -34,7 +33,6 @@ def create_new_file():
             PATH = FILES_SAVING_PATH + file_name + '.txt'
             cur_file = codecs.open(PATH, 'w', encoding='utf8')
             print("File with name", '"', file_name, '"', "successfully created.")
-            cur_file_name = file_name
             cur_file.close()
         except FileNotFoundError:
             print("Can't create the file with this name.")
@@ -48,7 +46,40 @@ def create_new_file():
 
 
 def add_information():
-
+    global cur_file, cur_file_name, FILES_SAVING_PATH
+    try:
+        cur_file.close()
+        cur_file = codecs.open(FILES_SAVING_PATH + cur_file_name + '.txt',
+                               'a', encoding='utf8')
+        string_to_write = ''
+        cur_string = ''
+        while cur_string != '.':
+            cur_string = input("Enter the Second name (enter a dot to end information "
+                "adding:")
+            if cur_string != '.':
+                string_to_write += cur_string + '&'
+                cur_string = input("Enter the name:")
+                string_to_write += cur_string + '&'
+                try:
+                    cur_string = input("Enter the math grade:")
+                    int(cur_string)
+                    string_to_write += cur_string + '&'
+                    cur_string = input("Enter the programming grade:")
+                    int(cur_string)
+                    string_to_write += cur_string + '&'
+                    cur_string = input("Enter the algebra grade:")
+                    int(cur_string)
+                    string_to_write += cur_string
+                    cur_file.write(string_to_write + '\n')
+                except:
+                    print("Incorrect input. Informations' adding ended.")
+                    break
+                string_to_write = ''
+        cur_file.close()
+        cur_file = codecs.open(FILES_SAVING_PATH + cur_file_name + '.txt',
+                               'r', encoding='utf8')
+    except:
+        pass
     menu()
 
 
@@ -56,8 +87,8 @@ def print_all_information():
     global cur_file
     for text in cur_file:
         if text[-1] == '\n':
-            text = text[:-2]
-        else:
+            text = text[:-1]
+        if text[-1] == '\r':
             text = text[:-1]
         text = [x for x in text.split('&')]
         for word in text:
@@ -96,7 +127,10 @@ def menu():
             7: shut_down_the_program}
     for i in range(1, len(menu) + 1):
         print(i, '-', ' '.join(((str(menu[i]).split())[1]).split('_')))
-    answer = int(input("Pick up an appropriate number:"))
+    try:
+        answer = int(input("Pick up an appropriate number:"))
+    except:
+        answer = 0
     while answer not in menu:
         print("Incorrect input. An element with this number doesn't exist.")
         for i in range(1, len(menu) + 1):
