@@ -94,10 +94,50 @@ def print_all_information():
         for word in text:
             print(word, end=' ')
         print()
+    cur_file.seek(0)
     menu()
 
 
 def one_field_search():
+    global cur_file_name, cur_file
+    if cur_file_name != '':
+        counter = 1
+        for text in ["second name", "name", "math grade", "programming grade",
+                     "algebra grade"]:
+            print(counter, '-', text)
+            counter += 1
+        try:
+            answer = int(
+                input("Choose the field you are going to search for info:"))
+        except:
+            answer = 0
+        while answer not in range(1, 6, 1):
+            print("Incorrect input. The field on this number doesn't exist.")
+            try:
+                answer = int(input("Try again:"))
+            except:
+                answer = 0
+        key = input('Enter the info you want to be found out:')
+        if answer > 2:
+            try:
+                key = int(key)
+                key = str(key)
+            except:
+                print("Incorrect input. There are only dials in this field.")
+                return 0
+        founded = False
+        for text in cur_file:
+            text = text.split('&')
+            if text[-1][-1] == '\n':
+                text[-1] = text[-1][:-1]
+            if text[-1][-1] == '\r':
+                text[-1] = text[-1][:-1]
+            if str(text[answer - 1]) == key:
+                founded = True
+                print(' '.join(text))
+        cur_file.seek(0)
+        if not founded:
+            print("No strings with this parameters")
     menu()
 
 
