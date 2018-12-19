@@ -95,30 +95,27 @@ def print_all_information():
 def one_field_search():
     global cur_file_name, cur_file
     if cur_file_name != '':
-        counter = 1
+        counter, answer = 1, 0
         for text in ["second name", "first name", "math grade", "algebra grade",
                      "programming grade"]:
             print(counter, '-', text)
             counter += 1
-        try:
-            answer = int(
-                input("Choose the field you are going to search for info:"))
-        except:
-            answer = 0
         while answer not in range(1, 6, 1):
-            print("Incorrect input. The field on this number doesn't exist.")
             try:
-                answer = int(input("Try again:"))
+                answer = int(input("Choose the field you are going to search for info:"))
             except:
+                print("Incorrect input. The field on this number doesn't exist.\nTry again.")
                 answer = 0
-        key = input('Enter the info you want to be found out:')
-        if answer > 2:
+        key = input('Enter the info you want to be found:')
+        while answer > 2:
             try:
                 int(key)
+                break
             except:
-                print("Incorrect input. There are only dials in this field.")
-                return 0
+                print("Incorrect input. There are only dials in this field.\nTry again.")
+                key = input('Enter the info you want to be found:')
         founded = False
+        print()
         for text in cur_file:
             text = text.split('&')
             if text[-1][-1] == '\n':
@@ -135,6 +132,50 @@ def one_field_search():
 
 
 def two_field_search():
+    global cur_file_name, cur_file
+    if cur_file_name != '':
+        counter, field_1 = 1, 0
+        text = ["second name", "first name", "math grade", "algebra grade",
+                     "programming grade"]
+        for string in text:
+            print(counter, '-', string)
+            counter += 1
+        fields = [0, 0]
+        for i in range(2):
+            while fields[i] not in range(1, 6, 1):
+                try:
+                    print("Choose the", i + 1, "field you are going to search for info:")
+                    fields[i] = int(input())
+                except:
+                    print("Incorrect input. The field on this number doesn't exist.\nTry again.")
+                    fields[i] = 0
+        keys = [0, 0]
+        for i in range(2):
+            print("Enter the info in '", text[fields[i] - 1], "' field info you want to be found:")
+            keys[i] = input()
+            while fields[i] > 2:
+                try:
+                    int(keys[i])
+                    break
+                except:
+                    print("Incorrect input. There are only dials in this field.\nTry again.")
+                    print("Enter the info in '", text[fields[i] - 1], "'field info you want to be found:")
+                    keys[i] = input()
+            founded = False
+        print()
+        for string in cur_file:
+            string = string.split('&')
+            if string[-1][-1] == '\n':
+                string[-1] = string[-1][:-1]
+            if string[-1][-1] == '\r':
+                string[-1] = string[-1][:-1]
+            if str(string[fields[0] - 1]) == keys[0] and \
+                    str(string[fields[1] - 1]) == keys[1]:
+                founded = True
+                print(' '.join(string))
+        cur_file.seek(0)
+        if not founded:
+            print("No strings with this parameters")
     menu()
 
 
