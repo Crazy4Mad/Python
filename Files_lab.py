@@ -7,10 +7,8 @@ FILES_SAVING_PATH = os.path.dirname(os.path.realpath("Files.py")) + '\\'
 def choose_file():
     global cur_file, cur_file_name, FILES_SAVING_PATH
     file_name = input("Enter a name of file you want to open:")
-    try:
+    if cur_file != '':
         cur_file.close()
-    except:
-        pass
     try:
         PATH = FILES_SAVING_PATH + file_name + '.txt'
         cur_file = codecs.open(PATH, 'r', encoding='utf8')
@@ -34,14 +32,12 @@ def create_new_file():
             cur_file = codecs.open(PATH, 'w', encoding='utf8')
             print("File with name", '"', file_name, '"', "successfully created.")
             cur_file.close()
-        except FileNotFoundError:
-            print("Can't create the file with this name.")
-        except OSError:
+        except FileNotFoundError or OSError:
             print("Can't create the file with this name.")
         else:
-            pass
+            print("Unknown mistake.")
     else:
-        pass
+        print("Unknown mistake.")
     menu()
 
 
@@ -51,30 +47,28 @@ def add_information():
         cur_file.close()
         cur_file = codecs.open(FILES_SAVING_PATH + cur_file_name + '.txt',
                                'a', encoding='utf8')
-        string_to_write = ''
-        cur_string = ''
-        while cur_string != '.':
-            cur_string = input("Enter the Second name (enter a dot to end information "
-                "adding:")
-            if cur_string != '.':
-                string_to_write += cur_string + '&'
-                cur_string = input("Enter the name:")
-                string_to_write += cur_string + '&'
+        info = ['\n' for i in range(5)]
+        text = ["Enter the Second name (enter a dot to end information adding):",
+                "Enter the first name:", "Enter the math grade:", "Enter the algebra grade:",
+                "Enter the programming grade:"]
+        while info[0] != '.':
+            info = ['\n' for i in range(5)]
+            flag = False
+            for i in range(5):
                 try:
-                    cur_string = input("Enter the math grade:")
-                    int(cur_string)
-                    string_to_write += cur_string + '&'
-                    cur_string = input("Enter the programming grade:")
-                    int(cur_string)
-                    string_to_write += cur_string + '&'
-                    cur_string = input("Enter the algebra grade:")
-                    int(cur_string)
-                    string_to_write += cur_string
-                    cur_file.write(string_to_write + '\n')
+                    info[i] = input(text[i])
+                    if i == 0 and info[0] == '.':
+                        flag = True
+                        break
+                    if i >= 2:
+                        int(info[i])
                 except:
-                    print("Incorrect input. Informations' adding ended.")
                     break
-                string_to_write = ''
+                    flag = True
+                    print("\nIncorrect input. Try again.")
+            print()
+            if not flag:
+                cur_file.write('&'.join(info) + '\n')
         cur_file.close()
         cur_file = codecs.open(FILES_SAVING_PATH + cur_file_name + '.txt',
                                'r', encoding='utf8')
@@ -102,8 +96,8 @@ def one_field_search():
     global cur_file_name, cur_file
     if cur_file_name != '':
         counter = 1
-        for text in ["second name", "name", "math grade", "programming grade",
-                     "algebra grade"]:
+        for text in ["second name", "first name", "math grade", "algebra grade",
+                     "programming grade"]:
             print(counter, '-', text)
             counter += 1
         try:
@@ -120,8 +114,7 @@ def one_field_search():
         key = input('Enter the info you want to be found out:')
         if answer > 2:
             try:
-                key = int(key)
-                key = str(key)
+                int(key)
             except:
                 print("Incorrect input. There are only dials in this field.")
                 return 0
