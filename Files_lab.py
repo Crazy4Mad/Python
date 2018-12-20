@@ -63,9 +63,9 @@ def add_information():
                     if i >= 2:
                         int(info[i])
                 except:
-                    break
                     flag = True
                     print("\nIncorrect input. Try again.")
+                    break
             print()
             if not flag:
                 cur_file.write('&'.join(info) + '\n')
