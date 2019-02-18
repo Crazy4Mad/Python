@@ -9,7 +9,6 @@ def from7to10(dial):
             dial10 += int(dial[0][-(i + 1)]) * (7 ** i)
             if int(dial[0][-(i + 1)]) >= 7:
                 raise UnicodeError
-
         for i in range(len(dial[1])):
             dial10 += int(dial[1][i]) * (7 ** (-(i + 1)))
             if int(dial[1][-(i + 1)]) >= 7:
@@ -17,7 +16,6 @@ def from7to10(dial):
         if str(dial10).split('.')[1] == '0':
             dial10 = int(dial10)
         return dial10
-
     except UnicodeError:
         return "This dial isn't in 7th base"
     except ValueError:
@@ -50,66 +48,91 @@ def from10to7(dial):
     else:
         return "UNKNOWN MISTAKE"
 
-root = Tk()
-
 def result(from_base, dial, output_field):
     dial = dial.get()
+    output_field.config(state="normal")
     output_field.delete(0, END)
     if from_base == 10:
         output_field.insert(0, from10to7(dial))
     else:
         output_field.insert(0, from7to10(dial))
-
+    output_field.config(state="disabled")
 
 def calc(dial, input_field):
     input_field.insert(input_field.index(INSERT), str(dial))
 
-
 def delete(input_field, output_field):
-    input_field.delete(0, END)
-    output_field.delete(0, END)
+    if type(input_field) != int:
+        input_field.delete(0, END)
+    if type(output_field) != int:
+        output_field.config(state="normal")
+        output_field.delete(0, END)
+        output_field.config(state="disabled")
 
+def information():
+    info = Tk()
+    plot = "Программу разработал Шевцов Егор, студент первого курса МГТУ им. Баумана факультета ИУ7\n"+\
+           "Данная программа реализует перевод действительных чисел из симметричной системы счисления в десятитчную и обратно\n"+\
+           "Программа позволяет вводить данные как через обычную клавиатуру, так и через электронную."
+    textwid = Text(info, wrap = WORD)
+    textwid.insert(END, plot)
+    textwid.config(state="disabled")
+    textwid.grid(row = 0, column = 0)
+    info.resizable(False, False)
+    info.mainloop()
 
 def window():
+    root = Tk()
     root.title('Перевод чисел')
 
     bwidth, bheight = 12, 6
 
-    filemenu = Menu(mainmenu, tearoff=0)
-    filemenu.add_command(label="")
+    mainmenu = Menu(root)
+    root.config(menu = mainmenu)
 
-    input_field = Entry(width = bwidth*3)
-    input_field.grid(row=0, column=0, columnspan=3)
-    output_field = Entry(width = bwidth*3)
-    output_field.grid(row=1, column=0, columnspan=3)
+    ifield = Entry(width = bwidth*3)
+    ifield.grid(row = 0, column=0, columnspan=3)
+    ofield = Entry(width = bwidth*3)
+    ofield.config(state="disabled")
+    ofield.grid(row = 1, column=0, columnspan=3)
+
+    action=Menu(mainmenu, tearoff=0)
+    action.add_command(label="7->10", command=lambda dial=ifield, out = ofield,
+                       base = 7: result(base, dial, out))
+    action.add_command(label="10->7", command = lambda dial=ifield, out = ofield,
+                        base = 10: result(base, dial, out))
+    clearmenu = Menu(action, tearoff=0)
+    clearmenu.add_command(label="Очистить поле ввода", command=lambda inp=ifield,
+                        out=ofield: delete(inp, 1))
+    clearmenu.add_command(label="Очистить поле вывода",command=lambda inp=ifield,
+                        out=ofield: delete(1, out))
+    clearmenu.add_command(label="Очистить все поля", command=lambda inp=ifield,
+                        out=ofield: delete(inp, out))
+    action.add_cascade(label="Очистка полей ввода-вывода", menu=clearmenu)
+
+    action.add_command(label="Информация о программе и об авторе",
+                       command=information)
+    mainmenu.add_cascade(label="Действия", menu=action)
+
 
     for i in range(1, 10):
-        but = Button(root, text="{}".format(i), width=bwidth, height=bheight,
-                     command=lambda f=i, inp=input_field: calc(f, inp))
-        but.grid(row=(i - 1) // 3 + 3, column=(i - 1) % 3)
+        Button(root, text="{}".format(i), width=bwidth, height=bheight,
+            command=lambda f=i, inp=ifield: calc(f, inp)).grid(row=(i - 1) // 3
+            + 3, column=(i - 1) % 3)
 
-    seven_ten = Button(text="7->10", width=bwidth, height=bheight,
-                       command=lambda dial=input_field, out=output_field,
-                                      base=7:
-                       result(base, dial, out)).grid(row=2, column=0)
-    zero = Button(text="0", width=bwidth, height=bheight,
-                  command=lambda f=0, inp=input_field:
-                  calc(f, inp)).grid(row=6, column=1)
-    ten_seven = Button(text="10->7", width=bwidth, height=bheight,
-                       command=lambda dial=input_field, out=output_field,
-                                      base=10:
-                       result(base, dial, out)).grid(row=2, column=2)
+    Button(text="7->10", width=bwidth, height=bheight, command=lambda dial=ifield,
+            out=ofield, base=7: result(base, dial, out)).grid(row=2, column=0)
+    Button(text="0", width=bwidth, height=bheight,command=lambda f=0, inp=ifield:
+            calc(f, inp)).grid(row=6, column=1)
+    Button(text="10->7", width=bwidth, height=bheight, command=lambda dial=ifield,
+            out=ofield, base=10: result(base, dial, out)).grid(row=2, column=2)
 
-    clear = Button(text="clear", width=bwidth, height=bheight,
-                   command=lambda inp=input_field, out=output_field: delete(inp,
-                                                                            out))
-    clear.grid(row=2, column=1)
-    dot = Button(text=".", width=bwidth, height=bheight,
-                 command=lambda f='.', inp=input_field: calc(f, inp)).grid(
-        row=6, column=0)
-    minus = Button(text="-", width=bwidth, height=bheight,
-                   command=lambda f='-', inp=input_field: calc(f, inp)).grid(
-        row=6, column=2)
+    Button(text="clear", width=bwidth, height=bheight,command=lambda inp=ifield,
+           out=ofield: delete(inp, out)).grid(row=2, column=1)
+    Button(text=".", width=bwidth, height=bheight, command=lambda f='.',
+           inp=ifield: calc(f, inp)).grid(row=6, column=0)
+    Button(text="-", width=bwidth, height=bheight, command=lambda f='-',
+           inp=ifield: calc(f, inp)).grid(row=6, column=2)
 
     root.resizable(False, False)
     root.mainloop()
