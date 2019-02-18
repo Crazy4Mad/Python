@@ -3,8 +3,15 @@ from tkinter import *
 
 def from7to10(dial):
     try:
+        mult = 1
         dial = str(float(dial)).split('.')
         dial10 = 0
+        dial[0] = dial[0].split('-')
+        if len(dial[0]) == 2:
+            mult = -1
+            dial[0] = dial[0][-1]
+        else:
+            dial[0] = '-'.join(dial[0])
         for i in range(len(dial[0])):
             dial10 += int(dial[0][-(i + 1)]) * (7 ** i)
             if int(dial[0][-(i + 1)]) >= 7:
@@ -15,6 +22,7 @@ def from7to10(dial):
                 raise UnicodeError
         if str(dial10).split('.')[1] == '0':
             dial10 = int(dial10)
+        dial10 *= mult
         return dial10
     except UnicodeError:
         return "This dial isn't in 7th base"
@@ -28,7 +36,10 @@ def from10to7(dial):
     try:
         dial = str(float(dial)).split('.')
         aux = int(dial[0])
-        dial7 = ''
+        dial7, flag = '', False
+        if aux < 0:
+            flag = True
+            aux = abs(aux)
         while aux != 0:
             dial7 = str(aux % 7) + dial7
             aux = int(aux / 7)
@@ -40,6 +51,8 @@ def from10to7(dial):
             aux %= 7
             dial7 += str(int(aux))
             iterations += 1
+        if flag:
+            dial7 = '-' + dial7
         if dial7.split('.')[1] == '':
             dial7 = int(dial7.split('.')[0])
         return dial7
