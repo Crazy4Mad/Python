@@ -21,6 +21,7 @@ def from7to10(dial):
             dial10 += int(dial[1][i]) * (7 ** (-(i + 1)))
             if int(dial[1][-(i + 1)]) >= 7:
                 raise UnicodeError
+        dial10 = float("{:.6f}".format(dial10))
         if str(dial10).split('.')[1] == '0':
             dial10 = int(dial10)
         dial10 *= mult
@@ -48,7 +49,7 @@ def from10to7(dial):
         aux = float('0.' + dial[1])
         dial7 += '.'
         iterations = 0
-        while aux != 0.0 and iterations < 8:
+        while aux != 0.0 and iterations < 6:
             aux *= 7
             aux %= 7
             dial7 += str(int(aux))
@@ -77,7 +78,8 @@ def result(from_base, dial, output_field, butto, butfrom):
     output_field.config(state="disabled")
 
 
-def calc(dial, input_field):
+def calc(dial, input_field, output_field):
+    delete(1, output_field)
     input_field.insert(input_field.index(INSERT), str(dial))
 
 
@@ -92,9 +94,13 @@ def delete(input_field, output_field):
 
 def information(text = "автор"):
     info = Tk()
-    plot_author = "Программу разработал Шевцов Егор, студент первого курса МГТУ им. Баумана факультета ИУ7\n"
-    plot_prog = "Данная программа реализует перевод действительных чисел из семеричной системы счисления в десятитчную и обратно\n" + \
-           "Программа позволяет вводить данные как через обычную клавиатуру, так и через электронную."
+    plot_author = "Программу разработал Шевцов Егор, студент первого курса МГТУ" +\
+                  " им. Баумана факультета ИУ7\n"
+    plot_prog = "Данная программа реализует перевод действительных чисел из"+\
+                " семеричной системы счисления в десятитчную и обратно\n" + \
+                "Программа позволяет вводить данные как через обычную клавиатуру,"+\
+                "так и через электронную."
+
     textwid = Text(info, wrap=WORD)
     if text == "автор":
         textwid.insert(END, plot_author)
@@ -109,63 +115,76 @@ def information(text = "автор"):
 def window():
     root = Tk()
     root.title('Перевод чисел')
-    bwidth, bheight = 12, 6
-    mainmenu = Menu(root)
-    root.config(menu=mainmenu)
-    ifield = Entry(width=bwidth * 3)
+    BWIDTH, BHEIGHT = 12, 6
+
+    #СОЗДАЮТСЯ ПОЛЯ ВВОДА И ВЫВОДА
+    ifield = Entry(width=BWIDTH * 3)
     ifield.grid(row=0, column=0, columnspan=3)
-    ofield = Entry(width=bwidth * 3)
+    ofield = Entry(width=BWIDTH * 3)
     ofield.config(state="disabled")
     ofield.grid(row=1, column=0, columnspan=3)
 
+    ifield.bind('<Key>', lambda aux=1, out=ofield: delete(1, out))
+
+    #СОЗДАЮ И НАСТРАИВАЮ КНОПКИ-ЦИФРЫ ДЛЯ КАЛЬКУЛЯТОРА
     for i in range(1, 10):
-        Button(root, text="{}".format(i), bg = "white", width=bwidth, height=bheight,
-               command=lambda f=i, inp=ifield: calc(f, inp)).grid(
-            row=(i - 1) // 3
-                + 3, column=(i - 1) % 3)
-    seventoten = Button(text="7->10", bg="white", width=bwidth, height=bheight)
+        Button(root, text="{}".format(i), bg = "white", width=BWIDTH, height=BHEIGHT,
+               command=lambda f=i, inp=ifield, out=ofield: calc(f, inp, out)).grid(
+               row=(i - 1) // 3 + 3, column=(i - 1) % 3)
+    Button(text="0", bg="white", width=BWIDTH, height=BHEIGHT,
+           command=lambda f=0, inp=ifield, out=ofield:
+           calc(f, inp, out)).grid(row=6, column=1)
+
+    #КНОПКИ ПЕРЕВОДА ИЗ ОДНО СИСТЕМЫ СЧИСЛЕНИЯ В ДРУГУЮ
+    seventoten = Button(text="7->10", bg="white", width=BWIDTH, height=BHEIGHT)
     seventoten.grid(row=2, column=0)
-
-    Button(text="0", bg = "white", width=bwidth, height=bheight,
-           command=lambda f=0, inp=ifield:
-           calc(f, inp)).grid(row=6, column=1)
-
-
-    tentoseven = Button(text="10->7", bg="white", width=bwidth, height=bheight)
+    tentoseven = Button(text="10->7", bg="white", width=BWIDTH, height=BHEIGHT)
     tentoseven.grid(row=2, column=2)
+    tentoseven.config(command=lambda dial=ifield, out=ofield, base=10,
+                      butto=tentoseven, butfrom=seventoten:
+                      result(base, dial, out, butto, butfrom))
+    seventoten.config(command=lambda dial=ifield, out=ofield, base=7,
+                      butto=seventoten, butfrom=tentoseven:
+                      result(base, dial, out, butto, butfrom))
 
-    tentoseven.config(command=lambda dial=ifield,
-                          out=ofield, base=7, butto=tentoseven, butfrom=seventoten:
-                        result(base, dial, out, butto, butfrom))
-    seventoten.config(command=lambda dial=ifield,
-                          out=ofield, base=10, butto=seventoten, butfrom=tentoseven:
-                        result(base, dial, out, butto, butfrom))
+    #КНОПКИ ОЧИСТКИ ВСЕХ ПОЛЕЙ, ДОБАВЛЕНИЯ ТОЧКИ И ЗНАКА МИНУС
+    Button(text="clear", bg="white", width=BWIDTH, height=BHEIGHT,
+           command=lambda inp=ifield,out=ofield:
+           delete(inp, out)).grid(row=2, column=1)
+    Button(text=".", bg="white", width=BWIDTH, height=BHEIGHT,
+           command=lambda f='.', out=ofield, inp=ifield: calc(f, inp, out)).grid(
+           row=6, column=0)
+    Button(text="-", bg="white", width=BWIDTH, height=BHEIGHT,
+           command=lambda f='-', out=ofield, inp=ifield: calc(f, inp, out)).grid(
+           row=6, column=2)
 
+
+    #СОЗДАЮ СТРОКУ ПАДАЮЩЕГО МЕНЮ И РАЗМЕЩАЮ ЕГО В ОСНОВНОМ ОКНЕ
+    mainmenu = Menu(root)
+    root.config(menu=mainmenu)
+
+    #СОЗДАЮ МЕНЮ ДЕЙСТВИЯ С ПОДПУНКТАМИ ПЕРЕВОДА МЕЖДУ СИСТЕМАМИ СЧИСЛЕНИЯ
     action = Menu(mainmenu, tearoff=0)
-    action.add_command(label="7->10", command=lambda dial=ifield,
-                                                     out=ofield, base=7,
-                                                     butto=seventoten,
-                                                     butfrom=tentoseven:
-    result(base, dial, out, butto, butfrom))
-    action.add_command(label="10->7", command=lambda dial=ifield,
-                                                     out=ofield, base=10,
-                                                     butto=tentoseven,
-                                                     butfrom=seventoten:
-    result(base, dial, out, butto, butfrom))
-    clearmenu = Menu(action, tearoff=0)
-    clearmenu.add_command(label="Очистить поле ввода",
-                          command=lambda inp=ifield,
-                                         out=ofield: delete(inp, 1))
-    clearmenu.add_command(label="Очистить поле вывода",
-                          command=lambda inp=ifield,
-                                         out=ofield: delete(1, out))
-    clearmenu.add_command(label="Очистить все поля", command=lambda inp=ifield,
-                                                                    out=ofield: delete(
-        inp, out))
-    action.add_cascade(label="Очистка полей ввода-вывода", menu=clearmenu)
+    action.add_command(label="7->10", command=lambda dial=ifield, out=ofield,
+                       base=7, butto=seventoten, butfrom=tentoseven:
+                       result(base, dial, out, butto, butfrom))
+    action.add_command(label="10->7", command=lambda dial=ifield, out=ofield,
+                       base=10, butto=tentoseven, butfrom=seventoten:
+                       result(base, dial, out, butto, butfrom))
 
+    #СОЗДАЮ ПОДМЕНЮ С ОЧИСТКОЙ ПОЛЕЙ ВВОДА-ВЫВОДА И ДОБАВЛЯЮ В НЕГО ВОЗМОЖНОСТИ
+    #ОЧИСТКИ КАЖДОГО ПОЛЯ КАК ПО ОТДЕЛЬНОСТИ, ТАК И ВМЕСТЕ
+    clearmenu = Menu(action, tearoff=0)
+    clearmenu.add_command(label="Очистить поле ввода", command=lambda inp=ifield,
+                          out=ofield: delete(inp, 1))
+    clearmenu.add_command(label="Очистить поле вывода",command=lambda inp=ifield,
+                        out=ofield: delete(1, out))
+    clearmenu.add_command(label="Очистить все поля", command=lambda inp=ifield,
+                          out=ofield: delete(inp, out))
+    action.add_cascade(label="Очистка полей ввода-вывода", menu=clearmenu)
     mainmenu.add_cascade(label="Действия", menu=action)
 
+    #СОЗДАЮ ЕЩЕ ОДНО МЕНЮ, В КОТОРОМ МОЖНО УЗНАТЬ ИНФОРМАЦИЮ О ПРОГРАММЕ И ОБ АВТОРЕ
     info = Menu(mainmenu, tearoff=0)
     info.add_command(label="Информация о программе",
                      command=lambda param=0: information(param))
@@ -173,17 +192,7 @@ def window():
                      command=information)
     mainmenu.add_cascade(label="Информация", menu=info)
 
-    Button(text="clear", bg="white", width=bwidth, height=bheight,
-           command=lambda inp=ifield,
-                          out=ofield: delete(inp, out)).grid(row=2, column=1)
-    Button(text=".", bg="white", width=bwidth, height=bheight, command=lambda f='.',
-                                                                  inp=ifield: calc(
-        f, inp)).grid(row=6, column=0)
-    Button(text="-", bg="white", width=bwidth, height=bheight, command=lambda f='-',
-                                                                  inp=ifield: calc(
-        f, inp)).grid(row=6, column=2)
     root.resizable(False, False)
     root.mainloop()
-
 
 window()
