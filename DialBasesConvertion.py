@@ -37,28 +37,32 @@ def from7to10(dial):
 def from10to7(dial):
     try:
         dial = str(float(dial)).split('.')
-        aux = int(dial[0])
-        dial7 = ''
-        dial7, flag = '', False
-        if aux < 0:
-            flag = True
-            aux = abs(aux)
-        while aux != 0:
-            dial7 = str(aux % 7) + dial7
-            aux = int(aux / 7)
-        aux = float('0.' + dial[1])
-        dial7 += '.'
+        mult = 1
+        if dial[0][0] == '-':
+            mult = -1
+        before_dot = abs(int(dial[0]))
+        after_dot = int(dial[1])
+        required_dial = ''
+        if before_dot == 0:
+            required_dial += '0'
+        while before_dot != 0:
+            required_dial = str(before_dot % 7) + required_dial
+            before_dot //= 7
+        if after_dot != 0:
+            required_dial += '.'
+            after_dot = float('0.' + str(after_dot))
         iterations = 0
-        while aux != 0.0 and iterations < 6:
-            aux *= 7
-            aux %= 7
-            dial7 += str(int(aux))
+        while after_dot != 0.0 and iterations < 6:
+            after_dot *= 7
+            after_dot %= 7
+            required_dial += str(int(after_dot))
             iterations += 1
-        if flag:
-            dial7 = '-' + dial7
-        if dial7.split('.')[1] == '':
-            dial7 = int(dial7.split('.')[0])
-        return dial7
+        if len(required_dial.split('.')) == 1:
+            required_dial = int(required_dial)*mult
+        else:
+            if mult == -1:
+                required_dial = '-' + required_dial
+        return required_dial
     except ValueError:
         return "Incorrect input"
     else:
