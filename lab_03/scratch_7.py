@@ -67,8 +67,8 @@ def roots(a, b, max_iters, pace, bias):
               root[1], '-', sep='\t')
             amount_of_roots += 1
         except ValueError:
-            print(amount_of_roots + 1, '[' + FORMAT.format(a) + ';' +
+            print('-', '[' + FORMAT.format(a) + ';' +
                   FORMAT.format(min(a + pace, b)) + ']',
                   '-', '-', '-', root[0], sep='\t')
         a += pace
-roots(14, 50, 90, 5*pi/8, 10**(-3))
+roots(-3, 1, 90, 5*pi/120, 10**(-3))
