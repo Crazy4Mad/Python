@@ -5,6 +5,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 YELLOW = (225, 225, 0)
 BROWN = (150, 75, 0)
+DARK_BROWN = (81, 54, 26)
 STRONG_BLUE = (0, 0, 100)
 SIZE = (500, 400)
 BALOON_SIZE = 60
@@ -20,13 +21,16 @@ dis = pygame.display.set_mode(SIZE)
 pygame.display.update()
 
 aux_left = 0
-aux_right = 0
+aux_up = 0
+aux_down = 0
+to_go = 0
 while True:
+    to_go -= 1
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             exit()
     aux_left += 1
-    aux_right += 2
+    aux_up += 2
     dis.fill(STRONG_BLUE)
     pygame.draw.circle(dis, YELLOW, (SIZE[0] - aux_left, int(SUN_SIZE * 0.8)), BALOON_SIZE * 2)
     pygame.draw.ellipse(dis, WHITE, ((200, 40), CLOUD_SIZE))
@@ -36,27 +40,34 @@ while True:
     pygame.draw.ellipse(dis, WHITE, ((-int(CLOUD_SIZE[0] / 2), 50), CLOUD_SIZE))
     pygame.draw.ellipse(dis, WHITE, ((-int(CLOUD_SIZE[0] / 2) - 20, 20), CLOUD_SIZE))
 
-    pygame.draw.circle(dis, RED, (int(SIZE[0] / 2), int(SIZE[1] / 2) - aux_right), BALOON_SIZE)
-    pygame.draw.rect(dis, BROWN, ((BASKET_COORDINATES[0], BASKET_COORDINATES[1] - aux_right), BASKET_SIZE))
+    pygame.draw.circle(dis, RED, (int(SIZE[0] / 2), int(SIZE[1] / 2) - aux_up), BALOON_SIZE)
+    pygame.draw.rect(dis, BROWN, ((BASKET_COORDINATES[0], BASKET_COORDINATES[1] - aux_up), BASKET_SIZE))
 
-    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - 15 - aux_right),
+    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - 15 - aux_up),
                                  2 * BALOON_SIZE, 30), pi, 2 * pi, 5)
-    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - BALOON_SIZE) - aux_right,
+    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - BALOON_SIZE) - aux_up,
                                  2 * BALOON_SIZE, BASKET_COORDINATES[1] + BALOON_SIZE + int(BASKET_SIZE[1] * 0.6)
                                  - int(SIZE[1] / 2)), pi / 2, 3 * pi / 2, 5)
-    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - BALOON_SIZE) - aux_right,
+    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE), int(SIZE[1] / 2 - BALOON_SIZE) - aux_up,
                                  2 * BALOON_SIZE, BASKET_COORDINATES[1] + BALOON_SIZE + int(BASKET_SIZE[1] * 0.6)
                                  - int(SIZE[1] / 2)), 3 * pi / 2, 5 * pi / 2, 5)
-    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE / 2), int(SIZE[1] / 2 - BALOON_SIZE) - aux_right,
+    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE / 2), int(SIZE[1] / 2 - BALOON_SIZE) - aux_up,
                                  BALOON_SIZE, BASKET_COORDINATES[1] + BALOON_SIZE + int(BASKET_SIZE[1] / 3)
                                  - int(SIZE[1] / 2)), pi / 2, 3 * pi / 2, 5)
-    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE / 2), int(SIZE[1] / 2 - BALOON_SIZE) - aux_right,
+    pygame.draw.arc(dis, BROWN, (int(SIZE[0] / 2 - BALOON_SIZE / 2), int(SIZE[1] / 2 - BALOON_SIZE) - aux_up,
                                  BALOON_SIZE, BASKET_COORDINATES[1] + BALOON_SIZE + int(BASKET_SIZE[1] / 3)
                                  - int(SIZE[1] / 2)), 3 * pi / 2, 5 * pi / 2, 5)
 
+    pygame.draw.ellipse(dis, DARK_BROWN, ((BASKET_COORDINATES[0], BASKET_COORDINATES[1] - aux_up + aux_down),
+                                          (50, 40)))
     pygame.time.Clock().tick(60)
     pygame.display.update()
     if SIZE[0] - aux_left + BALOON_SIZE*2 <= 0:
         aux_left = -int(BALOON_SIZE*1.8)
-    if SIZE[1] - aux_right - BASKET_SIZE[1] <= 0:
-        aux_right = -int(SIZE[1]/2) - BALOON_SIZE
+    if SIZE[1] - aux_up - BASKET_SIZE[1] <= 0:
+        aux_up = -int(SIZE[1] / 2) - BALOON_SIZE
+    if to_go <= 0:
+        aux_down += 4
+    if BASKET_COORDINATES[1] - aux_up + aux_down >= SIZE[1]:
+        to_go = 30
+        aux_down = 0
